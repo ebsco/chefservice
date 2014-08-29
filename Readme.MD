@@ -1,5 +1,5 @@
-Chef Service
-=========
+#Chef Service
+
 
 Figured we would need a way to execute a chef-client run on demand at startup time.  The easiest way to control all the variables we need is from a chef windows service that we can easily control
 
@@ -10,3 +10,18 @@ Figured we would need a way to execute a chef-client run on demand at startup ti
 
 Most of this idea was duplicated from Cloud-Init for Windows:
 http://www.cloudbase.it/cloud-init-for-windows-instances/
+
+---
+
+---
+
+##Install and Uninstall
+
+     
+###Install :
+
+ - installutil /username=corp\ncarpenter /password=Ebsco1234 ChefService.exe 
+
+###Uninstall :
+
+ - installutil /username=corp\ncarpenter /password=Ebsco1234 ChefService.exe /u

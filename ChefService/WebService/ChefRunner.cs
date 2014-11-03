@@ -1,16 +1,18 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace ChefService.WebService
 {
     public class ChefRunner : IDisposable
     {
+        static object lockobj = new object();
         const int MaxOutputLinesReturned = 200;
         Process ps;
-        ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+        Queue<string> queue = new Queue<string>();
         string ChefArgs;
         
         public ChefRunner(string someChefArgs)
@@ -31,6 +33,29 @@ namespace ChefService.WebService
             }
         }
 
+        //Make the part of the queue I need thread safe.
+        private int GetQueueCountSafely()
+        {
+            lock (lockobj)
+            {
+                return queue.Count;
+            }
+        }
+        private string DequeueSafely()
+        {
+            lock (lockobj)
+            {
+                return queue.Dequeue();
+            }
+        }
+        private void EnqueueSafely(string arg)
+        {
+            lock (lockobj)
+            {
+                queue.Enqueue(arg);
+            }
+        }
+        
         public ProcessOutput Output
         {
             get
@@ -39,8 +64,11 @@ namespace ChefService.WebService
                 string outstring;
                 int i = 0;
 
-                while (queue.TryDequeue(out outstring))
+                //while (queue.TryDequeue(out outstring))
+                while (GetQueueCountSafely ()> 0)
                 {
+                    outstring = DequeueSafely();
+
                     i++;
                     output.Lines.Add(outstring);
                     if (i >= MaxOutputLinesReturned)
@@ -72,20 +100,27 @@ namespace ChefService.WebService
             }
         }
 
+        private void Startme()
+        {
+            Thread a = new Thread(new ThreadStart(StartChef));
+            a.IsBackground = true;
+            a.Start();
+
+            while (ps == null)
+            {
+                Thread.Sleep(50);
+            }
+        }
 
         public void StartChefThread()
         {
             if (ps == null)
             {
-                Thread a = new Thread(new ThreadStart(StartChef));
-                a.IsBackground = true;
-                a.Start();
+                Startme();
             }
             else if (ps != null && ps.HasExited)
             {
-                Thread a = new Thread(new ThreadStart(StartChef));
-                a.IsBackground = true;
-                a.Start();
+                Startme();
             }
             else
             {
@@ -98,7 +133,7 @@ namespace ChefService.WebService
             if (e.Data != null)
             {
                 // append the new data to the data already read-in
-                queue.Enqueue(e.Data);
+                EnqueueSafely(e.Data);
                 //Console.WriteLine(e.Data);
             }
         }
@@ -143,10 +178,10 @@ namespace ChefService.WebService
                 }
 
                 //TESTING
-                //ps.StartInfo.FileName = "powershell";
-                //ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
+                ps.StartInfo.FileName = "powershell";
+                ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
                 
-                ps.StartInfo.Arguments = ChefArgs;
+                //ps.StartInfo.Arguments = ChefArgs;
 
                 ps.StartInfo.UseShellExecute = false;
                 ps.StartInfo.RedirectStandardError = true;

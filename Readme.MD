@@ -1,11 +1,11 @@
 #Chef Service
 
 
-Figured we would need a way to execute a chef-client run on demand at startup time.  The easiest way to control all the variables we need is from a chef windows service that we can easily control
+Figured we would need a way to execute a chef-client run on demand from a local context.  The easiest way to control all the variables we need is from a chef windows service that we can easily control
 
   - Running as correct user
-  - Runs at startup based on some magic Registry entry
-  - Will reset after run once.   Allows a seperate receipe to come along and set up for a nother reboot at a later time.
+  - Runs at startup based on some magic Registry entry (if needed)
+  - Any other possible windows workarounds
   
 
 Most of this idea was duplicated from Cloud-Init for Windows:
@@ -19,9 +19,9 @@ http://www.cloudbase.it/cloud-init-for-windows-instances/
 
      
 ###Install :
-
- - installutil /username=corp\ncarpenter /password=Ebsco1234 ChefService.exe 
+ - ChefService.exe -install (Will run as local system)
+ - ChefService.exe -install -username %name% -password %password%
 
 ###Uninstall :
 
- - installutil /username=corp\ncarpenter /password=Ebsco1234 ChefService.exe /u
+ - ChefService.exe -uninstall

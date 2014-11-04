@@ -178,10 +178,10 @@ namespace ChefService.WebService
                 }
 
                 //TESTING
-                ps.StartInfo.FileName = "powershell";
-                ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
+                //ps.StartInfo.FileName = "powershell";
+                //ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
                 
-                //ps.StartInfo.Arguments = ChefArgs;
+                ps.StartInfo.Arguments = ChefArgs;
 
                 ps.StartInfo.UseShellExecute = false;
                 ps.StartInfo.RedirectStandardError = true;

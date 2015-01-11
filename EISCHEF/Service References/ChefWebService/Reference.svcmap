@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="28a07cf9-0a92-4c03-ac61-404cd63454a6" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:9090/ChefService" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ChefService.xsd" MetadataType="Schema" ID="2dcc1c11-83c0-4b02-8ef1-96563318d8d5" SourceId="1" SourceUrl="http://localhost:9090/ChefService?xsd=xsd2" />
+    <MetadataFile FileName="ChefService1.xsd" MetadataType="Schema" ID="dadf3d14-c85a-45b1-8f79-861d0f1b14e6" SourceId="1" SourceUrl="http://localhost:9090/ChefService?xsd=xsd3" />
+    <MetadataFile FileName="ChefService2.xsd" MetadataType="Schema" ID="ea7f9da7-c2df-48ff-a997-169301d8d765" SourceId="1" SourceUrl="http://localhost:9090/ChefService?xsd=xsd0" />
+    <MetadataFile FileName="ChefService3.xsd" MetadataType="Schema" ID="7fd6fbfd-7db2-4956-b0a5-5b0d8c56ef96" SourceId="1" SourceUrl="http://localhost:9090/ChefService?xsd=xsd1" />
+    <MetadataFile FileName="ChefService.disco" MetadataType="Disco" ID="8aa854f0-acdf-45c8-8aef-d89367407e41" SourceId="1" SourceUrl="http://localhost:9090/ChefService?disco" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="afd2c921-c6fd-413a-92c8-56fe5773709d" SourceId="1" SourceUrl="http://localhost:9090/ChefService?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

@@ -8,8 +8,11 @@ using System.Threading;
 
 namespace ChefService
 {
+    /// <summary>
+    /// This class runs when installutil.exe is called on the executable ChefService.exe (myself)
+    /// </summary>
     [RunInstaller(true)]
-    public class MyWindowsServiceInstaller : Installer
+    public class ChefServiceInstallerDefinition : Installer
     {
         //Sent in via command line
         public static string user, pass;
@@ -18,7 +21,7 @@ namespace ChefService
         public ServiceProcessInstaller processInstaller;
         public ServiceInstaller serviceInstaller;
 
-        public MyWindowsServiceInstaller()
+        public ChefServiceInstallerDefinition()
         {
             processInstaller = new ServiceProcessInstaller();
             serviceInstaller = new ServiceInstaller();
@@ -105,7 +108,17 @@ namespace ChefService
             }
         }
 
-        public static void RemoveAlreadyInstalledVersion()
+        public override void Install(System.Collections.IDictionary stateSaver)
+        {
+            if (processInstaller.Account == ServiceAccount.User)
+                Console.WriteLine("Installing Service using the User Account: " + user);
+            else
+                Console.WriteLine("Installing Service using the LocalSystem Account");
+
+            base.Install(stateSaver);
+        }
+
+        void RemoveAlreadyInstalledVersion()
         {
 
             ServiceController ctl = ServiceController.GetServices()
@@ -120,6 +133,16 @@ namespace ChefService
                 ServiceInstallerObj.Uninstall(null);
                 Console.WriteLine("Uninstall Complete");
             }
+            else
+            {
+                Console.WriteLine("Service is not installed, skipping any calls to uninstall");
+            }
+        }
+        
+        public override void Uninstall(System.Collections.IDictionary savedState)
+        {
+            RemoveAlreadyInstalledVersion();
+            //base.Uninstall(savedState);
         }
     }
 }

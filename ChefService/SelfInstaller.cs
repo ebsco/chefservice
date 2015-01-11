@@ -4,15 +4,16 @@ using System.Reflection;
 
 namespace ChefService
 {
+    //A class that mimics installutil so we dont need to worry about a specific version being installed on the machine.
+    //Instead of the user finding installutil and calling installutil /i ChefService.exe.  THey can call CHefService.exe -install, using this class.
     public static class SelfInstaller
     {
         private static readonly string _exePath =Assembly.GetExecutingAssembly().Location;
 
-
         public static bool InstallService(string username=null, string password=null)
         {
-            MyWindowsServiceInstaller.user = username;
-            MyWindowsServiceInstaller.pass = password;
+            ChefServiceInstallerDefinition.user = username;
+            ChefServiceInstallerDefinition.pass = password;
             try
             {
                 ManagedInstallerClass.InstallHelper(new string[] { _exePath });

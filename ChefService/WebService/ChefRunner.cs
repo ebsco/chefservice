@@ -10,11 +10,11 @@ namespace ChefService.WebService
     public class ChefRunner : IDisposable
     {
         static object lockobj = new object();
-        const int MaxOutputLinesReturned = 200;
+        const int MaxOutputLinesReturned = 50;
         Process ps;
         Queue<string> queue = new Queue<string>();
         string ChefArgs;
-        
+
         public ChefRunner(string someChefArgs)
         {
             ChefArgs = someChefArgs;
@@ -55,7 +55,7 @@ namespace ChefService.WebService
                 queue.Enqueue(arg);
             }
         }
-        
+
         public ProcessOutput Output
         {
             get
@@ -65,7 +65,7 @@ namespace ChefService.WebService
                 int i = 0;
 
                 //while (queue.TryDequeue(out outstring))
-                while (GetQueueCountSafely ()> 0)
+                while (GetQueueCountSafely() > 0)
                 {
                     outstring = DequeueSafely();
 
@@ -180,7 +180,7 @@ namespace ChefService.WebService
                 //TESTING
                 //ps.StartInfo.FileName = "powershell";
                 //ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
-                
+
                 ps.StartInfo.Arguments = ChefArgs;
 
                 ps.StartInfo.UseShellExecute = false;
@@ -188,7 +188,7 @@ namespace ChefService.WebService
                 ps.StartInfo.RedirectStandardOutput = true;
                 ps.OutputDataReceived += DataReceived;
                 ps.ErrorDataReceived += DataReceived;
-
+                ps.StartInfo.CreateNoWindow = true;
                 ps.StartInfo.LoadUserProfile = false;
 
 
@@ -201,6 +201,7 @@ namespace ChefService.WebService
                     ps.BeginOutputReadLine();
                     ps.BeginErrorReadLine();
                     ps.WaitForExit();
+                    Console.WriteLine("Chef process finished");
 
                 }
                 catch (Exception e)
@@ -218,6 +219,16 @@ namespace ChefService.WebService
         {
             if (ps != null)
             {
+                if (!ps.HasExited)
+                {
+                    Console.WriteLine("Detected Chef-client not done running yet, waiting for it to finish");
+                    ps.WaitForExit();
+                }
+                int count = GetQueueCountSafely();
+                if (count != 0)
+                {
+                    throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read");
+                }
                 ps.Dispose();
                 ps = null;
             }

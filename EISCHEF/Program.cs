@@ -59,16 +59,19 @@ namespace ConsoleApplication1
             }
             return commandLine;
         }
-        static bool LogChefOutput(ChefWebServiceClient client)
+        static void LogChefOutput(ChefWebServiceClient client)
         {
-            bool linewritten = false;
-            foreach (var line in client.GetProcessOutput().Lines)
+            bool morelinesPotential = true;
+            while (morelinesPotential)
             {
-                Console.WriteLine(line);
-                linewritten = true;
-                //linecount++;
+                morelinesPotential = false;
+
+                foreach (var line in client.GetProcessOutput().Lines)
+                {
+                    Console.WriteLine(line);
+                    morelinesPotential = true;
+                }
             }
-            return linewritten;
         }
         static void WaitForChefClientToFinish(ChefWebServiceClient client)
         {
@@ -80,12 +83,7 @@ namespace ConsoleApplication1
 
             //chef-client has Exited read until all lines are grabbed
             //The chef service will only send  50 lines at once to make sure the data packet doesnt get too large.
-            bool morelines = true;
-            while (morelines)
-            {
-                morelines = LogChefOutput(client);
-                Thread.Sleep(50);
-            }
+            LogChefOutput(client);
         }
         
     }

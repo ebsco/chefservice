@@ -15,17 +15,37 @@ namespace ConsoleApplication1
 {
     class Program
     {
+        
+
         static void Main(string[] args)
         {
             try
             {
+                bool alreadyexists;
+                Mutex mtx = new Mutex(false, "ChefClientStarter", out alreadyexists);
                 //while (true){
 
                 ChefWebServiceClient client = new ChefWebServiceClient();
                 string commandLine = chefcommandlineparse(args);
-                client.StartChef(commandLine);
-                WaitForChefClientToFinish(client);
 
+                Console.WriteLine("Waiting for singular mutex to start Chef run");
+
+                while (!mtx.WaitOne(1000))
+                {
+                    Console.Write(".");
+                }
+                
+                Console.WriteLine("Mutex obtained");
+                try
+                {
+                    client.StartChef(commandLine);
+                    WaitForChefClientToFinish(client);
+                }
+                finally
+                {
+                    mtx.ReleaseMutex();
+                    Console.WriteLine("Mutex released");
+                }
 
                 //Get exit code  from chef client run and exit based on it
                 int Exitcode = client.GetExitCode();

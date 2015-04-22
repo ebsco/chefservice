@@ -26,7 +26,6 @@ namespace ChefService
             processInstaller = new ServiceProcessInstaller();
             serviceInstaller = new ServiceInstaller();
             serviceInstaller.Committed += new InstallEventHandler(serviceInstaller_Committed);
-            serviceInstaller.AfterInstall += new InstallEventHandler(serviceInstaller_AfterInstall);
 
             //set the privileges
             if (user != null && pass != null)
@@ -53,14 +52,12 @@ namespace ChefService
             this.Installers.Add(serviceInstaller);
         }
 
-        void serviceInstaller_AfterInstall(object sender, InstallEventArgs e)
+        void serviceInstaller_Committed(object sender, InstallEventArgs e)
         {
-            //This code is immediately starting the service.
             using (ServiceController sc = new ServiceController(serviceInstaller.ServiceName))
             {
                 sc.Start();
             }
-
             //Make sure it gets started
             bool starts = false;
             for (int i = 0; i < 20; i++)
@@ -87,10 +84,6 @@ namespace ChefService
             }
 
 
-        }
-
-        void serviceInstaller_Committed(object sender, InstallEventArgs e)
-        {
             //This code is making it so the Desktop Interaction checkbox is checked.
 
             ConnectionOptions coOptions = new ConnectionOptions();

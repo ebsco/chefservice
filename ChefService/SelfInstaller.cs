@@ -18,9 +18,10 @@ namespace ChefService
             {
                 ManagedInstallerClass.InstallHelper(new string[] { _exePath });
             }
-            catch
+            catch(Exception e)
             {
                 Console.WriteLine("Install Failed");
+                Console.WriteLine("Exception:" + e);
                 return false;
             }
 
@@ -36,9 +37,10 @@ namespace ChefService
                 ManagedInstallerClass.InstallHelper(
                     new string[] { "/u", _exePath });
             }
-            catch
+            catch(Exception e)
             {
                 Console.WriteLine("UnInstall Failed");
+                Console.WriteLine("Exception:" + e);
                 return false;
             }
             Console.WriteLine("UnInstall Succeeded");

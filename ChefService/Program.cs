@@ -116,7 +116,7 @@ namespace ChefService
             Console.WriteLine("-uninstall - Removes the service");
             Console.WriteLine("-install  - Tells the exe to install the service");
             Console.WriteLine("Optional install params - Will use local system if not specified");
-            Console.WriteLine("     -username name  - Username for the service");
+            Console.WriteLine("     -username name  - Username for the service. If using a local user prefix with .\\");
             Console.WriteLine("     -password pass  - Password ofr the service");
             Console.WriteLine("");
 

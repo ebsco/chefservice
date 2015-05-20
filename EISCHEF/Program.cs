@@ -16,14 +16,12 @@ namespace ConsoleApplication1
     class Program
     {
         
-
         static void Main(string[] args)
         {
             try
             {
                 bool alreadyexists;
                 Mutex mtx = new Mutex(false, "ChefClientStarter", out alreadyexists);
-                //while (true){
 
                 ChefWebServiceClient client = new ChefWebServiceClient();
                 string commandLine = chefcommandlineparse(args);
@@ -51,7 +49,7 @@ namespace ConsoleApplication1
                 int Exitcode = client.GetExitCode();
                 Console.WriteLine("Exit code from Chef :" + Exitcode);
                 Console.WriteLine("Finished...");
-                //}
+
                 Environment.Exit(Exitcode);
             }
             catch (Exception e)

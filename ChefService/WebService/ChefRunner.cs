@@ -100,16 +100,47 @@ namespace ChefService.WebService
             }
         }
 
+        private void WaitForProcessStart()
+        {
+            EnqueueSafely("Waiting for Chef Process to Start");
+            bool started = false;
+            int totalsleep = 0;
+            while (!started)
+            {
+                try
+                {
+                    if (ps != null)
+                    {
+                        bool abc = ps.HasExited;
+                        EnqueueSafely("Process Started");
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(100);
+                        totalsleep++;
+                    }
+                }
+                catch
+                {
+                    Thread.Sleep(100);
+                    totalsleep++;
+                }
+                //If the process hasnt started in 10 seconds error out
+                if (totalsleep > 100)
+                {
+                    EnqueueSafely("Process Failed to start in 10 seconds");
+                    throw new Exception("Waited for 10 seconds for process to start, and it never did");
+                }
+            }
+        }
         private void Startme()
         {
             Thread a = new Thread(new ThreadStart(StartChef));
             a.IsBackground = true;
             a.Start();
 
-            while (ps == null)
-            {
-                Thread.Sleep(50);
-            }
+            WaitForProcessStart();
         }
 
         public void StartChefThread()
@@ -120,7 +151,7 @@ namespace ChefService.WebService
             }
             else if (ps != null && ps.HasExited)
             {
-                Startme();
+                Startme(); // TODO Maybe remove
             }
             else
             {
@@ -227,6 +258,7 @@ namespace ChefService.WebService
                 int count = GetQueueCountSafely();
                 if (count != 0)
                 {
+                    queue.Clear();
                     throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read");
                 }
                 ps.Dispose();

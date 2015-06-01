@@ -171,9 +171,6 @@ namespace ChefService.WebService
 
         private static string FindFilePath(string exe)
         {
-            //Make sure my process path is updated with latest path variables
-            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine), EnvironmentVariableTarget.Process);
-
             exe = Environment.ExpandEnvironmentVariables(exe);
             if (!File.Exists(exe))
             {
@@ -193,8 +190,14 @@ namespace ChefService.WebService
 
         private void StartChef()
         {
+            //Refresh environment variable path
+            //Make sure my process path is updated with latest path variables
+            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine), EnvironmentVariableTarget.Process);
+            EnqueueSafely("Machine PATH:"+Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine));
+            EnqueueSafely("Process PATH:" + Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process));
+
+
             ps = new Process();
-            //using (ps = new Process())
             {
                 ps.StartInfo = new ProcessStartInfo();
                 try

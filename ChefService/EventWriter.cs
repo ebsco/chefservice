@@ -12,7 +12,8 @@ namespace ChefService
 
         public static void Write(string Message, EventLevel theLevel = EventLevel.Information, int SpecificID = 1)
         {
-            switch(theLevel){
+            switch (theLevel)
+            {
                 case EventLevel.Error:
                     EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Error, SpecificID);
                     break;
@@ -27,7 +28,7 @@ namespace ChefService
             }
         }
 
-        
+
     }
     public enum EventLevel
     {

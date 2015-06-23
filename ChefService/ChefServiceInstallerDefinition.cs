@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Configuration.Install;
+using System.Linq;
 using System.Management;
 using System.ServiceProcess;
-using System.Linq;
-using System;
 using System.Threading;
 
 namespace ChefService
@@ -139,7 +139,7 @@ namespace ChefService
                 Console.WriteLine("Service is not installed, skipping any calls to uninstall");
             }
         }
-        
+
         public override void Uninstall(System.Collections.IDictionary savedState)
         {
             RemoveAlreadyInstalledVersion();

@@ -16,7 +16,7 @@ namespace ChefService
             InitializeComponent();
         }
 
-        internal void mystart()
+        internal void StartWebService()
         {
             sh = new ServiceHost(typeof(WebService.ChefWebService));
             sh.Open();
@@ -31,7 +31,7 @@ namespace ChefService
             try
             {
                 Trace.WriteLine("Start Onstart event.");
-                mystart();
+                StartWebService();
                 Trace.WriteLine("End onStart event.");
             }
             catch (Exception e)

@@ -14,7 +14,7 @@ namespace ChefService
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                new ChefService().mystart();
+                new ChefService().StartWebService();
 
                 ManualResetEvent mre = new ManualResetEvent(false);
                 mre.WaitOne();
@@ -40,7 +40,7 @@ namespace ChefService
 #endif
         }
 
-        static void ExecArguments(string[]  args)
+        static void ExecArguments(string[] args)
         {
             //We are representing installutil here where -install and -uninstall will install the ChefService Windows Service using the same ChefService executable.  
             //Got rid of the problem knowing which installutil version to call.
@@ -94,19 +94,19 @@ namespace ChefService
                 Environment.Exit(1);
             }
         }
-        static void RunServiceUninstall(bool ShouldExit=true)
+        static void RunServiceUninstall(bool ShouldExit = true)
         {
             //Run uninstall command and exit
             bool val = SelfInstaller.UninstallService();
             if (val)
             {
                 if (ShouldExit)
-                Environment.Exit(0);
+                    Environment.Exit(0);
             }
             else
             {
                 if (ShouldExit)
-                Environment.Exit(1);
+                    Environment.Exit(1);
 
                 throw new Exception("Failed to call uninstall of service");
             }

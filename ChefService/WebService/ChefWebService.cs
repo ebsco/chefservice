@@ -1,8 +1,7 @@
-﻿using System.ServiceModel;
-using System;
-using System.ServiceModel.Channels;
+﻿using System;
 using System.Net;
-using System.Text;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace ChefService.WebService
 {
@@ -23,7 +22,7 @@ namespace ChefService.WebService
             if (cr == null)
                 throw new Exception("The Chef-Client run was never started, please call the StartChef Web Service method before calling any other methods");
         }
-        
+
         /// <summary>
         /// Checks to make sure client is from a local ip address.
         /// </summary>
@@ -33,18 +32,18 @@ namespace ChefService.WebService
             MessageProperties prop = context.IncomingMessageProperties;
             RemoteEndpointMessageProperty endpoint = prop[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty;
             string ip = endpoint.Address;
-            
+
             if (!IPAddress.IsLoopback(IPAddress.Parse(ip)))
             {
                 throw new Exception("Incoming message was not from local host, so stopping response, only support local host executions");
             }
 
             string abc = OperationContext.Current.EndpointDispatcher.EndpointAddress.Uri.Host;
-            
+
             if (abc != "localhost")
                 throw new Exception("Web Service endpoint is being hosted on something else besides localhost, this is an incorrect configuration");
         }
-        
+
         public void StartChef(string ChefArgs)
         {
             ValidateClientIPAddress();

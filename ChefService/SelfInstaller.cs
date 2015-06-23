@@ -10,6 +10,12 @@ namespace ChefService
     {
         private static readonly string _exePath =Assembly.GetExecutingAssembly().Location;
 
+        /// <summary>
+        /// Installs the chefservice with optional username and password.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public static bool InstallService(string username=null, string password=null)
         {
             ChefServiceInstallerDefinition.user = username;
@@ -30,6 +36,10 @@ namespace ChefService
             return true;
         }
 
+        /// <summary>
+        /// Uninstalls the chefservice
+        /// </summary>
+        /// <returns></returns>
         public static bool UninstallService()
         {
             try

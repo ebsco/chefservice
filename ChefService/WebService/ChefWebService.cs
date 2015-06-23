@@ -6,14 +6,27 @@ using System.Text;
 
 namespace ChefService.WebService
 {
+    /// <summary>
+    /// Since we are storing state (ChefRunner instance) we need to make this context mode single so we can always access to chef-client process class
+    /// </summary>
     [ServiceBehavior(IncludeExceptionDetailInFaults = false, InstanceContextMode = InstanceContextMode.Single)]
     public class ChefWebService : IChefWebService
     {
+        ChefRunner cr;
+        static object lockobj = new object();
+
+        /// <summary>
+        /// Validate a valid instance of ChefRunner exists
+        /// </summary>
         private void CheckValidChefRunnerInstance()
         {
             if (cr == null)
                 throw new Exception("The Chef-Client run was never started, please call the StartChef Web Service method before calling any other methods");
         }
+        
+        /// <summary>
+        /// Checks to make sure client is from a local ip address.
+        /// </summary>
         private void ValidateClientIPAddress()
         {
             OperationContext context = OperationContext.Current;
@@ -32,18 +45,20 @@ namespace ChefService.WebService
                 throw new Exception("Web Service endpoint is being hosted on something else besides localhost, this is an incorrect configuration");
         }
         
-        ChefRunner cr;
         public void StartChef(string ChefArgs)
         {
             ValidateClientIPAddress();
-            if (cr != null)
-            {
-                cr.Dispose();
-                cr = null;
-            }
 
-            cr = new ChefRunner(ChefArgs);
-            cr.StartChefThread();
+            lock (lockobj)
+            {
+                if (cr != null)
+                {
+                    cr.Dispose();
+                    cr = null;
+                }
+                cr = new ChefRunner(ChefArgs);
+                cr.StartChef();
+            }
         }
 
         public bool HasExited()

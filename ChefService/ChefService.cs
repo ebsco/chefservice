@@ -5,6 +5,9 @@ using System.ServiceProcess;
 
 namespace ChefService
 {
+    /// <summary>
+    /// Handles the logic of the Service Manager events.
+    /// </summary>
     public partial class ChefService : ServiceBase
     {
         ServiceHost sh;
@@ -15,11 +18,14 @@ namespace ChefService
 
         internal void mystart()
         {
-            //sh = new ServiceHost(typeof(ChefService));
             sh = new ServiceHost(typeof(WebService.ChefWebService));
             sh.Open();
         }
 
+        /// <summary>
+        /// Starts the webservice as part of service start.
+        /// </summary>
+        /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
             try
@@ -34,6 +40,10 @@ namespace ChefService
                 throw;
             }
         }
+
+        /// <summary>
+        /// Stops the web service.
+        /// </summary>
         protected override void OnStop()
         {
             try

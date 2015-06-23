@@ -4,26 +4,25 @@ namespace ChefService
 {
     static class EventWriter
     {
-        const string EventName = "ChefService";
         private static void RegisterEventSource()
         {
-            if (!EventLog.SourceExists(EventName))
-                EventLog.CreateEventSource(EventName, "Application");
+            if (!EventLog.SourceExists(ChefServiceInstallerDefinition.ChefServiceName))
+                EventLog.CreateEventSource(ChefServiceInstallerDefinition.ChefServiceName, "Application");
         }
 
         public static void Write(string Message, EventLevel theLevel = EventLevel.Information, int SpecificID = 1)
         {
             switch(theLevel){
                 case EventLevel.Error:
-                    EventLog.WriteEntry(EventName, Message, EventLogEntryType.Error, SpecificID);
+                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Error, SpecificID);
                     break;
 
                 case EventLevel.Information:
-                    EventLog.WriteEntry(EventName, Message, EventLogEntryType.Information, SpecificID);
+                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Information, SpecificID);
                     break;
 
                 case EventLevel.Warning:
-                    EventLog.WriteEntry(EventName, Message, EventLogEntryType.Warning, SpecificID);
+                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Warning, SpecificID);
                     break;
             }
         }

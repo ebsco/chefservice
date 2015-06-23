@@ -9,14 +9,14 @@ using System.Threading;
 namespace ChefService
 {
     /// <summary>
-    /// This class runs when installutil.exe is called on the executable ChefService.exe (myself)
+    /// The installer for the ChefService.  Will be executed using installutil or when calling chefservice.exe with the command line parameters.
     /// </summary>
     [RunInstaller(true)]
     public class ChefServiceInstallerDefinition : Installer
     {
         //Sent in via command line
         public static string user, pass;
-        public static string ChefServiceName = "EISChef";
+        public const string ChefServiceName = "EISChef";  //Service Name that shows up in SCM
 
         public ServiceProcessInstaller processInstaller;
         public ServiceInstaller serviceInstaller;
@@ -27,7 +27,7 @@ namespace ChefService
             serviceInstaller = new ServiceInstaller();
             serviceInstaller.Committed += new InstallEventHandler(serviceInstaller_Committed);
 
-            //set the privileges
+            //set the privileges - Optional Username and Password to run as.
             if (user != null && pass != null)
             {
                 processInstaller.Account = ServiceAccount.User;
@@ -52,6 +52,11 @@ namespace ChefService
             this.Installers.Add(serviceInstaller);
         }
 
+        /// <summary>
+        /// Will wait for the service to get started, before saying install is truly complete.  Also adds on the  Desktop Interaction checkbox setting
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void serviceInstaller_Committed(object sender, InstallEventArgs e)
         {
             using (ServiceController sc = new ServiceController(serviceInstaller.ServiceName))
@@ -111,6 +116,9 @@ namespace ChefService
             base.Install(stateSaver);
         }
 
+        /// <summary>
+        /// Remove the currently installed version if it is found already.  Think rebootstrap, etc
+        /// </summary>
         void RemoveAlreadyInstalledVersion()
         {
 

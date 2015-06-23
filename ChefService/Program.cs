@@ -21,6 +21,7 @@ namespace ChefService
             }
 #else
 
+            //If there are args - we are usually installing/uninstalling the service.
             if (args.Length > 0)
             {
                 ExecArguments(args);
@@ -28,6 +29,7 @@ namespace ChefService
             }
             else
             {
+                //We are running in the Service Manager in this use case
                 ServiceBase[] ServicesToRun;
                 ServicesToRun = new ServiceBase[] 
 			        { 

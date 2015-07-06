@@ -11,6 +11,8 @@ namespace ChefService
         /// </summary>
         static void Main(string[] args)
         {
+
+//When debugging in Visual Studio
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -40,6 +42,10 @@ namespace ChefService
 #endif
         }
 
+        /// <summary>
+        /// Method executed when CLI parameters are supplied
+        /// </summary>
+        /// <param name="args">The CLI args</param>
         static void ExecArguments(string[] args)
         {
             //We are representing installutil here where -install and -uninstall will install the ChefService Windows Service using the same ChefService executable.  
@@ -49,11 +55,12 @@ namespace ChefService
             if (arg.ContainsKey("INSTALL"))
             {
                 RunServiceInstall(arg);
-                throw new Exception("Should not get here");
+                throw new Exception("Should not get here - install");
             }
             else if (arg.ContainsKey("UNINSTALL"))
             {
-                RunServiceUninstall();
+                RunServiceUninstall(true);
+                throw new Exception("Should not get here - uninstall");
             }
             else
             {
@@ -61,8 +68,14 @@ namespace ChefService
                 throw new Exception("Should not get through past Usage");
             }
         }
+
+        /// <summary>
+        /// Installs the ChefService.
+        /// </summary>
+        /// <param name="arg">The full CLI Arguments parsed into a class</param>
         static void RunServiceInstall(Arguments arg)
         {
+            //We support running with a username and password, or without (See ChefServiceInstallerDefinition for default when not using username/password)
             string user = null, pass = null;
 
             if (arg.ContainsKey("USERNAME"))
@@ -82,9 +95,9 @@ namespace ChefService
             //Am I already installed?
             //If so remove ChefService Windows Service and then call the install command on myself using the installutil C# class
             RunServiceUninstall(false);
-            bool val = SelfInstaller.InstallService(user, pass);
 
             //Since we are calling an install command, exit.
+            bool val = SelfInstaller.InstallService(user, pass);
             if (val)
             {
                 Environment.Exit(0);
@@ -94,6 +107,11 @@ namespace ChefService
                 Environment.Exit(1);
             }
         }
+
+        /// <summary>
+        /// Will uninstall the service.  Needs to support exiting, and not exiting(install use case)
+        /// </summary>
+        /// <param name="ShouldExit">Default of true - controls if it exits the console application</param>
         static void RunServiceUninstall(bool ShouldExit = true)
         {
             //Run uninstall command and exit
@@ -111,6 +129,10 @@ namespace ChefService
                 throw new Exception("Failed to call uninstall of service");
             }
         }
+
+        /// <summary>
+        /// Shows usage of the Main executable
+        /// </summary>
         static void Usage()
         {
             Console.WriteLine("Usage:");

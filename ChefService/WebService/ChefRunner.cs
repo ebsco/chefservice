@@ -125,7 +125,7 @@ namespace ChefService.WebService
                 if (count != 0)
                 {
                     queue.Clear();
-                    throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read");
+                    throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read.  Clearing for now.");
                 }
                 ps.Dispose();
                 ps = null;

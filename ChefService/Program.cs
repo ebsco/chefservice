@@ -1,27 +1,20 @@
 ﻿using System;
+using System.Configuration.Install;
+using System.Reflection;
 using System.ServiceProcess;
-using System.Threading;
 
 namespace ChefService
 {
     static class Program
     {
+        private static readonly string _exePath = Assembly.GetExecutingAssembly().Location;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         static void Main(string[] args)
         {
-
-//When debugging in Visual Studio
-#if DEBUG
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                new ChefService().StartWebService();
-
-                ManualResetEvent mre = new ManualResetEvent(false);
-                mre.WaitOne();
-            }
-#else
+            DebugMode();
 
             //If there are args - we are usually installing/uninstalling the service.
             if (args.Length > 0)
@@ -39,7 +32,25 @@ namespace ChefService
 			        };
                 ServiceBase.Run(ServicesToRun);
             }
-#endif
+
+        }
+
+        /// <summary>
+        /// Running in debug mode attached to visual studio
+        /// </summary>
+        static void DebugMode()
+        {
+            //When debugging in Visual Studio
+            #if DEBUG
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                new ChefService().StartWebService();
+
+                ManualResetEvent mre = new ManualResetEvent(false);
+                mre.WaitOne();
+                Environment.Exit(1);
+            }
+            #endif
         }
 
         /// <summary>
@@ -97,13 +108,18 @@ namespace ChefService
             RunServiceUninstall(false);
 
             //Since we are calling an install command, exit.
-            bool val = SelfInstaller.InstallService(user, pass);
-            if (val)
+            ChefServiceInstallerDefinition.user = user;
+            ChefServiceInstallerDefinition.pass = pass;
+            try
             {
+                ManagedInstallerClass.InstallHelper(new string[] { _exePath });
+                Console.WriteLine("Install Succeeded");
                 Environment.Exit(0);
             }
-            else
+            catch (Exception e)
             {
+                Console.WriteLine("Install Failed");
+                Console.WriteLine("Exception:" + e);
                 Environment.Exit(1);
             }
         }
@@ -114,19 +130,22 @@ namespace ChefService
         /// <param name="ShouldExit">Default of true - controls if it exits the console application</param>
         static void RunServiceUninstall(bool ShouldExit = true)
         {
-            //Run uninstall command and exit
-            bool val = SelfInstaller.UninstallService();
-            if (val)
+            //Run uninstall command
+            try
             {
+                ManagedInstallerClass.InstallHelper(new string[] { "/u", _exePath });
+                Console.WriteLine("UnInstall Succeeded");
+                
                 if (ShouldExit)
                     Environment.Exit(0);
             }
-            else
+            catch (Exception e)
             {
+                Console.WriteLine("UnInstall Failed");
+                Console.WriteLine("Exception:" + e);
+                
                 if (ShouldExit)
                     Environment.Exit(1);
-
-                throw new Exception("Failed to call uninstall of service");
             }
         }
 

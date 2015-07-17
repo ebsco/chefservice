@@ -44,6 +44,10 @@ namespace ChefService.WebService
                 throw new Exception("Web Service endpoint is being hosted on something else besides localhost, this is an incorrect configuration");
         }
 
+        /// <summary>
+        /// Starts the Chef-Client run
+        /// </summary>
+        /// <param name="ChefArgs"></param>
         public void StartChef(string ChefArgs)
         {
             ValidateClientIPAddress();
@@ -60,6 +64,10 @@ namespace ChefService.WebService
             }
         }
 
+        /// <summary>
+        /// Determines if Chef-Client process has exited
+        /// </summary>
+        /// <returns></returns>
         public bool HasExited()
         {
             ValidateClientIPAddress();
@@ -67,6 +75,10 @@ namespace ChefService.WebService
             return cr.HasExited;
         }
 
+        /// <summary>
+        /// Gets the Exit code of Chef-Client process
+        /// </summary>
+        /// <returns></returns>
         public int GetExitCode()
         {
             ValidateClientIPAddress();
@@ -74,6 +86,10 @@ namespace ChefService.WebService
             return cr.ExitCode;
         }
 
+        /// <summary>
+        /// Gets the Process output that is being stored in memory
+        /// </summary>
+        /// <returns></returns>
         public ProcessOutput GetProcessOutput()
         {
             ValidateClientIPAddress();

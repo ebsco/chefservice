@@ -16,10 +16,29 @@ namespace ChefService
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Starts the Service Host for the WebService
+        /// </summary>
         internal void StartWebService()
         {
             sh = new ServiceHost(typeof(WebService.ChefWebService));
             sh.Open();
+        }
+
+        /// <summary>
+        /// Stops the ServiceHost for the WebService
+        /// </summary>
+        internal void StopWebService()
+        {
+            if (sh != null)
+            {
+                if (sh.State != CommunicationState.Opened)
+                    return;
+
+                sh.Close();
+                ((IDisposable)sh).Dispose();
+                sh = null;
+            }
         }
 
         /// <summary>
@@ -49,17 +68,7 @@ namespace ChefService
             try
             {
                 Trace.WriteLine("Start OnStop event");
-
-                if (sh != null)
-                {
-                    if (sh.State != CommunicationState.Opened)
-                        return;
-
-                    sh.Close();
-                    ((IDisposable)sh).Dispose();
-                    sh = null;
-                }
-
+                StopWebService();
                 Trace.WriteLine("END OnStop event");
             }
             catch (Exception e)

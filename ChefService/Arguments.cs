@@ -120,8 +120,5 @@ namespace ChefService
             if (curParam != null)
                 _args.Add(curParam, "");
         }
-
-
-        
     }
 }

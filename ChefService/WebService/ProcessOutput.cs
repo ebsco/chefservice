@@ -10,6 +10,9 @@ namespace ChefService.WebService
     [DataContract]
     public class ProcessOutput
     {
+        /// <summary>
+        /// Lines of output to be sent back to CLI Utility
+        /// </summary>
         [DataMember]
         public List<string> Lines = new List<string>();
     }

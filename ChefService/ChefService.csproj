@@ -90,7 +90,6 @@
     <Compile Include="ChefServiceInstallerDefinition.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SelfInstaller.cs" />
     <Compile Include="ChefService.cs">
       <SubType>Component</SubType>
     </Compile>

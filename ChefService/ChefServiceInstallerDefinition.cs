@@ -14,12 +14,13 @@ namespace ChefService
     [RunInstaller(true)]
     public class ChefServiceInstallerDefinition : Installer
     {
+        public const string ChefServiceName = "ChefService";  //Service Name that shows up in SCM
+        const int ServiceStartRetries = 20;
+        ServiceProcessInstaller processInstaller;
+        ServiceInstaller serviceInstaller;
+
         //Sent in via command line
         public static string user, pass;
-        public const string ChefServiceName = "EISChef";  //Service Name that shows up in SCM
-
-        public ServiceProcessInstaller processInstaller;
-        public ServiceInstaller serviceInstaller;
 
         public ChefServiceInstallerDefinition()
         {
@@ -52,26 +53,54 @@ namespace ChefService
             this.Installers.Add(serviceInstaller);
         }
 
+        public override void Uninstall(System.Collections.IDictionary savedState)
+        {
+            RemoveAlreadyInstalledVersion();
+            //base.Uninstall(savedState);
+        }
+
+        public override void Install(System.Collections.IDictionary stateSaver)
+        {
+            if (processInstaller.Account == ServiceAccount.User)
+                Console.WriteLine("Installing Service using the User Account: " + user);
+            else
+                Console.WriteLine("Installing Service using the LocalSystem Account");
+
+            base.Install(stateSaver);
+        }
+
         /// <summary>
         /// Will wait for the service to get started, before saying install is truly complete.  Also adds on the  Desktop Interaction checkbox setting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void serviceInstaller_Committed(object sender, InstallEventArgs e)
+        private void serviceInstaller_Committed(object sender, InstallEventArgs e)
         {
             using (ServiceController sc = new ServiceController(serviceInstaller.ServiceName))
             {
                 sc.Start();
             }
+
             //Make sure it gets started
+            WaitForServiceToStart();
+
+            //This code is making it so the Desktop Interaction checkbox is checked.
+            SetDesktopInteraction();
+        }
+
+        /// <summary>
+        /// Waits for the Windows Service to Start
+        /// </summary>
+        private void WaitForServiceToStart()
+        {
             bool starts = false;
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < ServiceStartRetries; i++)
             {
                 using (ServiceController sc = new ServiceController(serviceInstaller.ServiceName))
                 {
                     if (sc.Status != ServiceControllerStatus.Running)
                     {
-                        Console.WriteLine("Service not started yet...");
+                        Console.WriteLine("Service not started yet..." + i + "/" + ServiceStartRetries);
                     }
                     else
                     {
@@ -87,10 +116,13 @@ namespace ChefService
             {
                 throw new Exception("Service never Started");
             }
+        }
 
-
-            //This code is making it so the Desktop Interaction checkbox is checked.
-
+        /// <summary>
+        /// Allow service to interact with desktop
+        /// </summary>
+        private void SetDesktopInteraction()
+        {
             ConnectionOptions coOptions = new ConnectionOptions();
             coOptions.Impersonation = ImpersonationLevel.Impersonate;
             ManagementScope mgmtScope = new ManagementScope(@"root\CIMV2", coOptions);
@@ -106,20 +138,10 @@ namespace ChefService
             }
         }
 
-        public override void Install(System.Collections.IDictionary stateSaver)
-        {
-            if (processInstaller.Account == ServiceAccount.User)
-                Console.WriteLine("Installing Service using the User Account: " + user);
-            else
-                Console.WriteLine("Installing Service using the LocalSystem Account");
-
-            base.Install(stateSaver);
-        }
-
         /// <summary>
         /// Remove the currently installed version if it is found already.  Think rebootstrap, etc
         /// </summary>
-        void RemoveAlreadyInstalledVersion()
+        private void RemoveAlreadyInstalledVersion()
         {
 
             ServiceController ctl = ServiceController.GetServices()
@@ -140,10 +162,5 @@ namespace ChefService
             }
         }
 
-        public override void Uninstall(System.Collections.IDictionary savedState)
-        {
-            RemoveAlreadyInstalledVersion();
-            //base.Uninstall(savedState);
-        }
     }
 }

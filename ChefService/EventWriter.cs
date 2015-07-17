@@ -2,6 +2,9 @@
 
 namespace ChefService
 {
+    /// <summary>
+    /// Write events to the event viewer
+    /// </summary>
     static class EventWriter
     {
         private static void RegisterEventSource()
@@ -10,6 +13,12 @@ namespace ChefService
                 EventLog.CreateEventSource(ChefServiceInstallerDefinition.ChefServiceName, "Application");
         }
 
+        /// <summary>
+        /// Wrapper around writing events
+        /// </summary>
+        /// <param name="Message">Message to write</param>
+        /// <param name="theLevel">The EventLevel</param>
+        /// <param name="SpecificID"></param>
         public static void Write(string Message, EventLevel theLevel = EventLevel.Information, int SpecificID = 1)
         {
             switch (theLevel)
@@ -27,9 +36,11 @@ namespace ChefService
                     break;
             }
         }
-
-
     }
+
+    /// <summary>
+    /// Which Levels of an event that we want to support
+    /// </summary>
     public enum EventLevel
     {
         Error,

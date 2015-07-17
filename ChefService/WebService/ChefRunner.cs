@@ -51,21 +51,13 @@ namespace ChefService.WebService
             get
             {
                 ProcessOutput output = new ProcessOutput();
-                string outstring;
-                int i = 0;
-
-                //while (queue.TryDequeue(out outstring))
-                while (GetQueueCountSafely() > 0)
+                
+                while (GetQueueCountSafely() > 0 && output.Lines.Count <= MaxOutputLinesReturned)
                 {
-                    outstring = DequeueSafely();
-
-                    i++;
-                    output.Lines.Add(outstring);
-                    if (i >= MaxOutputLinesReturned)
-                    {
-                        break;
-                    }
+                   var str=DequeueSafely();
+                   output.Lines.Add(str);
                 }
+
                 return output;
             }
         }
@@ -120,15 +112,22 @@ namespace ChefService.WebService
                     Console.WriteLine("Detected Chef-client not done running yet, waiting for it to finish");
                     ps.WaitForExit();
                 }
-                int count = GetQueueCountSafely();
-                //If the full output hasnt been fully read, then throw an exception.  This usually would mean something bad happened in client code, or a user interrupted a chef-client run.
-                if (count != 0)
+
+                try
                 {
-                    queue.Clear();
-                    throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read.  Clearing for now.");
+                    int count = GetQueueCountSafely();
+                    //If the full output hasnt been fully read, then throw an exception.  This usually would mean something bad happened in client code, or a user interrupted a chef-client run.
+                    if (count != 0)
+                    {
+                        queue.Clear();
+                        throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read.  Clearing for now.");
+                    }
                 }
-                ps.Dispose();
-                ps = null;
+                finally
+                {
+                    ps.Dispose();
+                    ps = null;
+                }
             }
         }
 
@@ -175,6 +174,7 @@ namespace ChefService.WebService
         {
             //Refresh environment variable path
             //Make sure my process path is updated with latest path variables
+            //This was a bug in Chef-client installer.  The path isnt updated after a bootstrap
             Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine), EnvironmentVariableTarget.Process);
             EnqueueSafely("Machine PATH:" + Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine));
             EnqueueSafely("Process PATH:" + Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process));
@@ -182,6 +182,7 @@ namespace ChefService.WebService
 
             ps = new Process();
             ps.StartInfo = new ProcessStartInfo();
+            
             try
             {
                 ps.StartInfo.FileName = FindFilePath("chef-client.bat");
@@ -198,7 +199,6 @@ namespace ChefService.WebService
             //ps.StartInfo.Arguments = "$i=0; while($true){ write-host Test;  $i++; if($i -gt 4000){break;}}";
 
             ps.StartInfo.Arguments = ChefArgs;
-
             ps.StartInfo.UseShellExecute = false;
             ps.StartInfo.RedirectStandardError = true;
             ps.StartInfo.RedirectStandardOutput = true;
@@ -207,10 +207,9 @@ namespace ChefService.WebService
             ps.StartInfo.CreateNoWindow = true;
             ps.StartInfo.LoadUserProfile = false;
 
-            EnqueueSafely("Starting chef process");
-            //Console.WriteLine("Starting chef process");
             try
             {
+                EnqueueSafely("Starting chef process");
                 ps.Start();
                 ps.BeginOutputReadLine();
                 ps.BeginErrorReadLine();

@@ -111,7 +111,7 @@ namespace ConsoleApplication1
             mtx = new Mutex(false, "ChefClientStarter", out alreadyexists);
             Console.WriteLine("Waiting for singular mutex to start Chef run");
 
-            while (!mtx.WaitOne(1000))
+            while (!mtx.WaitOne(2000))
             {
                 Console.Write(".");
             }

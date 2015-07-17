@@ -143,16 +143,11 @@ namespace ConsoleApplication1
                     }
                 }
 
-               
+
+                Console.WriteLine("Finished killing other processes, attempting to clear out error");
+                Console.WriteLine("Killing any already running Chef-Client process");
+                client.ClearError();
             }
-
-            Console.WriteLine("Finished killing other processes, attempting to clear out error");
-            Console.WriteLine("Killing any already running Chef-Client process");
-            client.ClearError();
-
-
-
-
 
         }
     }

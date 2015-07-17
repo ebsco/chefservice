@@ -49,4 +49,14 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="ClearError">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ClearErrorResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

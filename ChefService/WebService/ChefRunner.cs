@@ -10,6 +10,7 @@ namespace ChefService.WebService
     public class ChefRunner : IDisposable
     {
         private static object lockobj = new object();
+        private static object disposelockobj = new object();
         private const int MaxOutputLinesReturned = 50;
         private Process ps;
 
@@ -51,13 +52,15 @@ namespace ChefService.WebService
             get
             {
                 ProcessOutput output = new ProcessOutput();
-                
+                //EventWriter.Write("Getting Process Output", EventLevel.Information);
+
                 while (GetQueueCountSafely() > 0 && output.Lines.Count <= MaxOutputLinesReturned)
                 {
                    var str=DequeueSafely();
                    output.Lines.Add(str);
                 }
 
+                //EventWriter.Write("Returning Process Output", EventLevel.Information);
                 return output;
             }
         }
@@ -100,33 +103,62 @@ namespace ChefService.WebService
             }
         }
 
+
+        public void Kill()
+        {
+            if (ps != null)
+            {
+                EventWriter.Write("Found Chef-client still running, configured to kill", EventLevel.Warning, 1);
+
+                try
+                {
+                    Processes.KillProcessTree(ps.Id, true);
+                }
+                catch (System.ComponentModel.Win32Exception e)
+                {
+                    EventWriter.Write("Win32Exception when killing chef-client:"+e, EventLevel.Warning, 1);
+                    //     The associated process could not be terminated. -or- The process is terminating.
+                    //      -or- The associated process is a Win16 executable.
+                }
+                catch (System.InvalidOperationException e)
+                {
+                    EventWriter.Write("InvalidOperationException when killing chef-client:" + e, EventLevel.Warning, 1);
+                    //     The process has already exited. -or- There is no process associated with
+                    //     this System.Diagnostics.Process object.
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         public void Dispose()
         {
-            if (ps != null)
+            lock (disposelockobj)
             {
-                if (!ps.HasExited)
+                if (ps != null)
                 {
-                    Console.WriteLine("Detected Chef-client not done running yet, waiting for it to finish");
-                    ps.WaitForExit();
-                }
-
-                try
-                {
-                    int count = GetQueueCountSafely();
-                    //If the full output hasnt been fully read, then throw an exception.  This usually would mean something bad happened in client code, or a user interrupted a chef-client run.
-                    if (count != 0)
+                    if (!ps.HasExited)
                     {
-                        queue.Clear();
-                        throw new Exception("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read.  Clearing for now.");
+                        Console.WriteLine("Detected Chef-client not done running yet, waiting for it to finish");
+                        ps.WaitForExit();
                     }
-                }
-                finally
-                {
-                    ps.Dispose();
-                    ps = null;
+
+                    try
+                    {
+                        int count = GetQueueCountSafely();
+                        //If the full output hasnt been fully read, then throw an exception.  This usually would mean something bad happened in client code, or a user interrupted a chef-client run.
+                        if (count != 0)
+                        {
+                            queue.Clear();
+                            throw new ImproperException("The output has not been fully read.  Please investigate the client code, because there are at least " + count + " lines left to read.  Clearing for now.");
+                        }
+                    }
+                    finally
+                    {
+                        ps.Dispose();
+                        ps = null;
+                    }
                 }
             }
         }
@@ -190,7 +222,7 @@ namespace ChefService.WebService
             catch (FileNotFoundException fnfe)
             {
                 Console.WriteLine("Couldn't find chef-client");
-                EventWriter.Write("Exception finding Chef-Client:" + fnfe, EventLevel.Error, 2);
+                EventWriter.Write("Exception finding Chef-Client:" + fnfe, EventLevel.Error);
                 throw fnfe;
             }
 
@@ -219,11 +251,6 @@ namespace ChefService.WebService
                 EventWriter.Write("Exception running Chef-Client:" + e, EventLevel.Error, 3);
                 throw e;
             }
-
-            //No real post processing here for now, but keeping this in case we decide to do any.
-            Thread a = new Thread(new ThreadStart(WaitForChefClient));
-            a.IsBackground = true;
-            a.Start();
         }
 
         /// <summary>
@@ -264,19 +291,6 @@ namespace ChefService.WebService
                 throw new FileNotFoundException(new FileNotFoundException().Message, exe);
             }
             return Path.GetFullPath(exe);
-        }
-
-        /// <summary>
-        /// Starts the chef-client process
-        /// </summary>
-        private void WaitForChefClient()
-        {
-            if (ps == null)
-            {
-                throw new Exception("WE SHOULD NEVER HAVE GOTTEN HERE");
-            }
-            ps.WaitForExit();
-            EnqueueSafely("Chef process finished");
         }
     }
 }

@@ -19,8 +19,10 @@ namespace ChefService.WebService
         /// </summary>
         private void CheckValidChefRunnerInstance()
         {
+
             if (cr == null)
                 throw new Exception("The Chef-Client run was never started, please call the StartChef Web Service method before calling any other methods");
+
         }
 
         /// <summary>
@@ -64,15 +66,39 @@ namespace ChefService.WebService
             }
         }
 
+
+        public void ClearError()
+        {
+            lock (lockobj)
+            {
+                try
+                {
+                    if (cr != null)
+                    {
+                        cr.Kill();
+                        cr.Dispose();
+                        cr = null;
+                    }
+                }
+                catch (ImproperException)
+                {
+                    Console.WriteLine("Caught improper exception due to invalid exit before");
+                }
+            }
+        }
+
         /// <summary>
         /// Determines if Chef-Client process has exited
         /// </summary>
         /// <returns></returns>
         public bool HasExited()
         {
-            ValidateClientIPAddress();
-            CheckValidChefRunnerInstance();
-            return cr.HasExited;
+            lock (lockobj)
+            {
+                ValidateClientIPAddress();
+                CheckValidChefRunnerInstance();
+                return cr.HasExited;
+            }
         }
 
         /// <summary>
@@ -81,9 +107,12 @@ namespace ChefService.WebService
         /// <returns></returns>
         public int GetExitCode()
         {
-            ValidateClientIPAddress();
-            CheckValidChefRunnerInstance();
-            return cr.ExitCode;
+            lock (lockobj)
+            {
+                ValidateClientIPAddress();
+                CheckValidChefRunnerInstance();
+                return cr.ExitCode;
+            }
         }
 
         /// <summary>
@@ -92,9 +121,12 @@ namespace ChefService.WebService
         /// <returns></returns>
         public ProcessOutput GetProcessOutput()
         {
-            ValidateClientIPAddress();
-            CheckValidChefRunnerInstance();
-            return cr.Output;
+            lock (lockobj)
+            {
+                ValidateClientIPAddress();
+                CheckValidChefRunnerInstance();
+                return cr.Output;
+            }
         }
     }
 }

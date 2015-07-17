@@ -86,9 +86,6 @@
     <None Include="Service References\ChefWebService\ChefService3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\ChefWebService\ConsoleApplication1.ChefWebService.ProcessOutput.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="Service References\ChefWebService\Service1.wsdl" />
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +108,12 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChefService\ChefService.csproj">
+      <Project>{A5D6113A-0310-4F27-A253-54CB54A3E43F}</Project>
+      <Name>ChefService</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

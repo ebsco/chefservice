@@ -9,54 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace ConsoleApplication1.ChefWebService {
-    using System.Runtime.Serialization;
-    using System;
     
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ProcessOutput", Namespace="http://schemas.datacontract.org/2004/07/ChefService.WebService")]
-    [System.SerializableAttribute()]
-    public partial class ProcessOutput : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string[] LinesField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string[] Lines {
-            get {
-                return this.LinesField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.LinesField, value) != true)) {
-                    this.LinesField = value;
-                    this.RaisePropertyChanged("Lines");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ChefWebService.IChefWebService")]
@@ -69,10 +22,13 @@ namespace ConsoleApplication1.ChefWebService {
         int GetExitCode();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IChefWebService/GetProcessOutput", ReplyAction="http://tempuri.org/IChefWebService/GetProcessOutputResponse")]
-        ConsoleApplication1.ChefWebService.ProcessOutput GetProcessOutput();
+        ChefService.WebService.ProcessOutput GetProcessOutput();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IChefWebService/HasExited", ReplyAction="http://tempuri.org/IChefWebService/HasExitedResponse")]
         bool HasExited();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IChefWebService/ClearError", ReplyAction="http://tempuri.org/IChefWebService/ClearErrorResponse")]
+        void ClearError();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -110,12 +66,16 @@ namespace ConsoleApplication1.ChefWebService {
             return base.Channel.GetExitCode();
         }
         
-        public ConsoleApplication1.ChefWebService.ProcessOutput GetProcessOutput() {
+        public ChefService.WebService.ProcessOutput GetProcessOutput() {
             return base.Channel.GetProcessOutput();
         }
         
         public bool HasExited() {
             return base.Channel.HasExited();
+        }
+        
+        public void ClearError() {
+            base.Channel.ClearError();
         }
     }
 }

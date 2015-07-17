@@ -96,10 +96,12 @@
     <Compile Include="ChefService.Designer.cs">
       <DependentUpon>ChefService.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImproperException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebService\ChefRunner.cs" />
     <Compile Include="WebService\IChefWebService.cs" />
+    <Compile Include="WebService\Processes.cs" />
     <Compile Include="WebService\ProcessOutput.cs" />
     <Compile Include="WebService\ChefWebService.cs" />
   </ItemGroup>

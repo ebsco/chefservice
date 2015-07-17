@@ -5,12 +5,12 @@ namespace ChefService
     /// <summary>
     /// Write events to the event viewer
     /// </summary>
-    static class EventWriter
+    public static class EventWriter
     {
-        private static void RegisterEventSource()
+        private static void RegisterEventSource(string AppName = ChefServiceInstallerDefinition.ChefServiceName)
         {
-            if (!EventLog.SourceExists(ChefServiceInstallerDefinition.ChefServiceName))
-                EventLog.CreateEventSource(ChefServiceInstallerDefinition.ChefServiceName, "Application");
+            if (!EventLog.SourceExists(AppName))
+                EventLog.CreateEventSource(AppName, "Application");
         }
 
         /// <summary>
@@ -19,20 +19,21 @@ namespace ChefService
         /// <param name="Message">Message to write</param>
         /// <param name="theLevel">The EventLevel</param>
         /// <param name="SpecificID"></param>
-        public static void Write(string Message, EventLevel theLevel = EventLevel.Information, int SpecificID = 1)
+        public static void Write(string Message, EventLevel theLevel = EventLevel.Information, int SpecificID = 1, string AppName = ChefServiceInstallerDefinition.ChefServiceName)
         {
+            RegisterEventSource(AppName);
             switch (theLevel)
             {
                 case EventLevel.Error:
-                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Error, SpecificID);
+                    EventLog.WriteEntry(AppName, Message, EventLogEntryType.Error, SpecificID);
                     break;
 
                 case EventLevel.Information:
-                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Information, SpecificID);
+                    EventLog.WriteEntry(AppName, Message, EventLogEntryType.Information, SpecificID);
                     break;
 
                 case EventLevel.Warning:
-                    EventLog.WriteEntry(ChefServiceInstallerDefinition.ChefServiceName, Message, EventLogEntryType.Warning, SpecificID);
+                    EventLog.WriteEntry(AppName, Message, EventLogEntryType.Warning, SpecificID);
                     break;
             }
         }

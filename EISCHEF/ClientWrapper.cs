@@ -4,16 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using ConsoleApplication1.ChefWebService;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace ConsoleApplication1
 {
     class ClientWrapper
     {
-        /// <summary>
-        /// Mutex to make sure only one instance of the client is running at once
-        /// </summary>
-        Mutex mtx;
-
         /// <summary>
         /// Runs the chef client until completion
         /// </summary>
@@ -21,22 +18,20 @@ namespace ConsoleApplication1
         /// <returns></returns>
         public int RunChef(string[] args)
         {
-            ObtainClientMutex();
+            
             string commandLine = chefcommandlineparse(args);
             ChefWebServiceClient client = new ChefWebServiceClient();
 
-            try
-            {
-                client.StartChef(commandLine);
-                WaitForChefClientToFinish(client);
-            }
-            finally
-            {
-                mtx.ReleaseMutex();
-                Console.WriteLine("Mutex released");
-            }
+            ValidateOneClientRun(client);
+
+            client.StartChef(commandLine);
+            ChefService.EventWriter.Write("Chef Started", ChefService.EventLevel.Information, 1, Program.GetTitle());
+            WaitForChefClientToFinish(client);
+            ChefService.EventWriter.Write("Chef Finished", ChefService.EventLevel.Information, 1, Program.GetTitle());
+
 
             int Exitcode = client.GetExitCode();
+            ChefService.EventWriter.Write("Exit code from Chef:" + Exitcode, ChefService.EventLevel.Information, 1, Program.GetTitle());
             Console.WriteLine("Exit code from Chef :" + Exitcode);
             Console.WriteLine("Finished...");
             return Exitcode;
@@ -72,16 +67,21 @@ namespace ConsoleApplication1
         /// <param name="client"></param>
         private void LogChefOutput(ChefWebServiceClient client)
         {
-            bool morelinesPotential = true;
-            while (morelinesPotential)
+            
+            while (true)
             {
-                morelinesPotential = false;
+             
+                //ChefService.EventWriter.Write("Checking for new lines...", ChefService.EventLevel.Information, 1, Program.GetTitle());
+                var lines = client.GetProcessOutput().Lines;
+                //ChefService.EventWriter.Write("total new lines: "+lines.Length, ChefService.EventLevel.Information, 1, Program.GetTitle());
 
-                foreach (var line in client.GetProcessOutput().Lines)
+                foreach (var line in lines)
                 {
                     Console.WriteLine(line);
-                    morelinesPotential = true;
                 }
+
+                if (lines.Count == 0)
+                    break;
             }
         }
 
@@ -91,10 +91,15 @@ namespace ConsoleApplication1
         /// <param name="client"></param>
         private void WaitForChefClientToFinish(ChefWebServiceClient client)
         {
-            while (!client.HasExited())
+            bool hasexited = false;
+
+            while (!hasexited)
             {
                 LogChefOutput(client);
                 Thread.Sleep(250); //dont hit the service too hard
+
+                hasexited = client.HasExited();
+                //ChefService.EventWriter.Write("Checking if exited...", ChefService.EventLevel.Information, 1, Program.GetTitle());
             }
 
             //chef-client has Exited read until all lines are grabbed
@@ -105,18 +110,50 @@ namespace ConsoleApplication1
         /// <summary>
         /// Only one chef-client run at once
         /// </summary>
-        private void ObtainClientMutex()
+        private void ValidateOneClientRun(ChefWebServiceClient client)
         {
-            bool alreadyexists;
-            mtx = new Mutex(false, "ChefClientStarter", out alreadyexists);
-            Console.WriteLine("Waiting for singular mutex to start Chef run");
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string s = assembly.Location;
+            string assembname = System.IO.Path.GetFileNameWithoutExtension(s);
 
-            while (!mtx.WaitOne(2000))
+            var procs = Process.GetProcessesByName(assembname);
+
+            //Some error detecting our processes
+            if (procs.Length == 0) {
+                if (!Debugger.IsAttached)
+                {
+                    throw new Exception("Failed to find any other processes, this is a bug in client code");
+                }
+            }
+            else if (procs.Length == 1) //This is our process
             {
-                Console.Write(".");
+                Console.WriteLine("No other " + assembname + " are running, good to run");
+            }
+            else
+            {
+                Console.WriteLine("Killing other processes that are still running. Total count:" + (procs.Length - 1));
+
+                int myprocid = Process.GetCurrentProcess().Id;
+                foreach (var item in procs)
+                {
+                    if (item.Id != myprocid)
+                    {
+                        Console.WriteLine("Killing:" + item.ProcessName);
+                        item.Kill();
+                    }
+                }
+
+               
             }
 
-            Console.WriteLine("Mutex obtained");
+            Console.WriteLine("Finished killing other processes, attempting to clear out error");
+            Console.WriteLine("Killing any already running Chef-Client process");
+            client.ClearError();
+
+
+
+
+
         }
     }
 }

@@ -32,6 +32,12 @@
   <wsdl:message name="IChefWebService_HasExited_OutputMessage">
     <wsdl:part name="parameters" element="tns:HasExitedResponse" />
   </wsdl:message>
+  <wsdl:message name="IChefWebService_ClearError_InputMessage">
+    <wsdl:part name="parameters" element="tns:ClearError" />
+  </wsdl:message>
+  <wsdl:message name="IChefWebService_ClearError_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ClearErrorResponse" />
+  </wsdl:message>
   <wsdl:portType name="IChefWebService">
     <wsdl:operation name="StartChef">
       <wsdl:input wsaw:Action="http://tempuri.org/IChefWebService/StartChef" message="tns:IChefWebService_StartChef_InputMessage" />
@@ -48,6 +54,10 @@
     <wsdl:operation name="HasExited">
       <wsdl:input wsaw:Action="http://tempuri.org/IChefWebService/HasExited" message="tns:IChefWebService_HasExited_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IChefWebService/HasExitedResponse" message="tns:IChefWebService_HasExited_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ClearError">
+      <wsdl:input wsaw:Action="http://tempuri.org/IChefWebService/ClearError" message="tns:IChefWebService_ClearError_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IChefWebService/ClearErrorResponse" message="tns:IChefWebService_ClearError_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IChefWebService" type="tns:IChefWebService">
@@ -81,6 +91,15 @@
     </wsdl:operation>
     <wsdl:operation name="HasExited">
       <soap:operation soapAction="http://tempuri.org/IChefWebService/HasExited" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearError">
+      <soap:operation soapAction="http://tempuri.org/IChefWebService/ClearError" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

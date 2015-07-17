@@ -38,5 +38,15 @@ namespace ChefService.WebService
         [OperationContract]
         [WebInvoke(UriTemplate = "HasExited", Method = "GET")]
         bool HasExited();
+
+
+        /// <summary>
+        /// Clears Error state of webservice
+        /// </summary>
+        /// <returns></returns>
+        [OperationContract]
+        [WebInvoke(UriTemplate = "ClearError", Method = "GET")]
+        void ClearError();
+        
     }
 }

@@ -1,3 +1,7 @@
+#**Design**
+![Overall Design](https://cloud.githubusercontent.com/assets/6966179/6873163/c54fb87a-d484-11e4-8196-211ee2ebbe22.png "Overall Design")
+
+
 #**Components**
 
 ##ChefService.exe

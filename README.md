@@ -32,7 +32,7 @@ Will call the Chef Service Web Service and execute a Chef-Client run.  This clie
  
 #**How to get installed as part of the normal Chef workflow**
 ##Custom Bootstrap file
-* See example bootstrap file located [here](https://github.com/garethr/booky/blob/08615163198a2b51353aeba07f25ec9ed477d60c/src/booky/lib/builder.py#L17-L22).  This was a custom bootstrap file created to deploy these executables as part of the chef normal bootstrap operation.  The important parts of the code can be seen highlighted [here](https://github.com/garethr/booky/blob/08615163198a2b51353aeba07f25ec9ed477d60c/src/booky/lib/builder.py#L17-L22).
+* See example bootstrap file located [here](https://github.com/ebsco/chefservice/blob/master/SampleBootstrap/SampleBootstrapTemplate.erb).  This was a custom bootstrap file created to deploy these executables as part of the chef normal bootstrap operation.  The important parts of the code can be seen highlighted [here](https://github.com/ebsco/chefservice/blob/master/SampleBootstrap/SampleBootstrapTemplate.erb#L45-L115).
 
 	* It performs a file download of 4 files
 		* EIS-Chef.exe

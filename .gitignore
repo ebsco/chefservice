@@ -5,3 +5,7 @@
 *.user
 *.suo
 /packages
+/NUnitResults.xml
+/OpenCoverReport.xml
+/OpenCoverReport
+/Release_Package

@@ -1,0 +1,129 @@
+﻿<?xml version="1.0"  encoding="utf-8"?>
+<project name="ChefService" default="build" xmlns="http://nant.sf.net/release/0.92/nant.xsd">
+
+  <!-- Environmental that usually doesnt need to change-->
+  <property name="dir.main.build" value="${directory::get-current-directory()}" overwrite="false" />
+  <property name="msbuild.exe" value="MSBuild.exe" overwrite="false" />
+  <property name="msbuild.exe" value="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe" overwrite="true" />
+  <property name="Version_file" value="${path::combine(dir.main.build, 'SharedAssemblyVersion.cs')}" />
+
+  <!-- Boiler Plate infrastructure - rarely changes-->
+  <!-- Requires Nunit/OpenCover and ReportGenerator to be integrated into the solution as Nuget Packages.-->
+
+  <property name="Build_Number" value="1.0.0.0" overwrite="false" />
+  <property name="Unit_Test_exe" value="${dir.main.build}\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe" overwrite="false" />
+  <property name="Unit_Test_Framework_Version" value="4.0" overwrite="false" />
+  <property name="Code_Coverage_exe" value="${dir.main.build}\packages\OpenCover.4.6.166\tools\OpenCover.Console.exe" overwrite="false" />
+  <property name="CC_Exclude_attribute_string" value="*.ExcludeFromCodeCoverage*" overwrite="false" />
+  <property name="CC_Include_filter" value="+[ChefService]* +[ConsoleApplication1]*" overwrite="false" />
+  <property name="CC_Output_File" value="OpenCoverReport.xml" overwrite="false" />
+  <property name="CC_Report_exe" value="${dir.main.build}\packages\ReportGenerator.2.1.8.0\tools\ReportGenerator.exe  " overwrite="false" />
+
+  <!-- Project Specific -->
+  <property name="file.solution" value="${path::combine(dir.main.build, 'ChefServiceWorkaround.sln')}" />
+  <property name="config.solution.buildmode" value="Release" overwrite="false" />
+  <property name="TestDLL" value="${dir.main.build}\Test\bin\${config.solution.buildmode}\Test.dll" overwrite="false" />
+  <property name="package.working.dir"  value="${path::combine(dir.main.build, 'Release_Package')}"/>
+  
+  
+  <target name="build" description="compiles the source code">
+    <!-- This doesnt make sense anymore... We are now going to need to call this on the outside of this
+    <call target="NugetRestore" />-->
+
+    <call target="Build_Solution" />
+    <call target="Code_Coverage_and_Unit_Tests" />
+    <call target="_Project_Specific_Package" />
+    
+
+  </target>
+
+
+  <!-- Builds the Source Code -->
+  <target name="Build_Solution" depends="_Set_Version">
+    <!-- Build the solution -->
+    <echo message="Solution File: ${file.solution}" />
+    <exec program="${msbuild.exe}" failonerror="true" >
+      <arg line="/t:Rebuild"/>
+      <arg line="/verbosity:Minimal"/>
+      
+      <arg line="/p:Configuration=&quot;${config.solution.buildmode}&quot;"/>
+      <arg line="/p:Platform=&quot;Any CPU&quot;"/>
+
+      <!-- build using the solution file -->
+      <arg line="&quot;${file.solution}&quot;"/>
+    </exec>
+
+    <echo message="Build Solution is complete..."/>
+    <echo message=""/>
+  </target>
+ 
+  <!--Run Code Coverage and Unit Tests-->
+  <target name="Code_Coverage_and_Unit_Tests">
+    <echo message="Starting OpenCover analysis" />
+    <exec program="${Code_Coverage_exe}" failonerror="true" verbose="true">
+      <arg value="-target:&quot;${Unit_Test_exe}&quot;" />
+      <arg value="-targetargs:&quot;${TestDLL} /framework ${Unit_Test_Framework_Version}  /noshadow /result=${path::combine(dir.main.build, 'NUnitResults.xml')}&quot;" />
+      <arg value="-filter:&quot;${CC_Include_filter}&quot;" />
+      <arg value="-mergebyhash" />
+      <arg value="-log:All" />
+      <arg value="-register:user" />
+      <arg value="-excludebyattribute:${CC_Exclude_attribute_string}" />
+      <arg value="-output:${path::combine(dir.main.build, CC_Output_File)}" />
+      <arg value="-returntargetcode" />
+      
+    </exec>
+    <echo message=""/>
+    <echo message=""/>
+    <echo message="Generate OpenCover Report" />
+    <exec program="${CC_Report_exe}" failonerror="true">
+      <arg value="-reports:${path::combine(dir.main.build, CC_Output_File)}" />
+      <arg value="-targetdir:OpenCoverReport" />
+    </exec>
+
+    <echo message=""/>
+    <echo message="Completed OpenCover analysis" />
+    <echo message=""/>
+  </target>
+  
+  
+  <!--Internal Calls-->
+  <!--Sets the version of the assembly-->
+  <target name="_Set_Version">
+    
+    <asminfo output="${Version_file}" language="CSharp">
+      <imports>
+        <import namespace="System.Reflection" />
+      </imports>
+      <attributes>
+        <attribute type="AssemblyInformationalVersionAttribute" value="${Build_Number}" />
+        <attribute type="AssemblyFileVersionAttribute" value="${Build_Number}" />
+      </attributes>
+      <references>
+        <include name="System.EnterpriseServices.dll" />
+      </references>
+    </asminfo>
+  </target>
+
+
+  <target name="_Project_Specific_Package">
+
+    <!-- Create the working directory -->
+    <mkdir dir="${package.working.dir}"/>
+
+    <!-- Copy binaries to the package directory. -->
+    <copy todir="${package.working.dir}" overwrite="true">
+      <fileset basedir="${dir.main.build}\ChefService\bin\${config.solution.buildmode}">
+        <include name="ChefService.exe"/>
+        <include name="ChefService.exe.config"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${package.working.dir}" overwrite="true" >
+      <fileset basedir="${dir.main.build}\EISCHEF\bin\${config.solution.buildmode}">
+        <include name="EIS-Chef.exe"/>
+        <include name="EIS-Chef.exe.config"/>
+      </fileset>
+    </copy>
+
+  </target>
+</project>

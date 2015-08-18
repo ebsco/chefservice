@@ -17,8 +17,9 @@
   <property name="CC_Exclude_attribute_string" value="*.ExcludeFromCodeCoverage*" overwrite="false" />
   <property name="CC_Include_filter" value="+[ChefService]* +[ConsoleApplication1]*" overwrite="false" />
   <property name="CC_Output_File" value="OpenCoverReport.xml" overwrite="false" />
-  <property name="CC_Report_exe" value="${dir.main.build}\packages\ReportGenerator.2.1.8.0\tools\ReportGenerator.exe  " overwrite="false" />
-
+  <property name="CC_Report_exe" value="${dir.main.build}\packages\ReportGenerator.2.1.8.0\tools\ReportGenerator.exe" overwrite="false" />
+  <property name="Release_exe" value="${dir.main.build}\packages\github-release.0.5.3\tools\github-release.exe" overwrite="false" />
+  
   <!-- Project Specific -->
   <property name="file.solution" value="${path::combine(dir.main.build, 'ChefServiceWorkaround.sln')}" />
   <property name="config.solution.buildmode" value="Release" overwrite="false" />
@@ -30,16 +31,16 @@
     <!-- This doesnt make sense anymore... We are now going to need to call this on the outside of this
     <call target="NugetRestore" />-->
 
-    <call target="Build_Solution" />
-    <call target="Code_Coverage_and_Unit_Tests" />
+    <call target="_Build_Solution" />
+    <call target="_Code_Coverage_and_Unit_Tests" />
     <call target="_Project_Specific_Package" />
     
-
+    <call target="_Release" />
   </target>
 
 
   <!-- Builds the Source Code -->
-  <target name="Build_Solution" depends="_Set_Version">
+  <target name="_Build_Solution" depends="_Set_Version">
     <!-- Build the solution -->
     <echo message="Solution File: ${file.solution}" />
     <exec program="${msbuild.exe}" failonerror="true" >
@@ -58,7 +59,7 @@
   </target>
  
   <!--Run Code Coverage and Unit Tests-->
-  <target name="Code_Coverage_and_Unit_Tests">
+  <target name="_Code_Coverage_and_Unit_Tests">
     <echo message="Starting OpenCover analysis" />
     <exec program="${Code_Coverage_exe}" failonerror="true" verbose="true">
       <arg value="-target:&quot;${Unit_Test_exe}&quot;" />
@@ -85,6 +86,48 @@
     <echo message=""/>
   </target>
   
+  
+  <target name="_Release" >
+    <setenv>
+      <variable name="GITHUB_USER" value="ebsco" />
+      <variable name="GITHUB_REPO" value="chefservice" />
+    </setenv>
+
+    <echo message="Creating Release" />
+    <exec program="${Release_exe}" failonerror="true" >
+      <arg line="release"/>
+      <arg line="-t v${Build_Number}"/>
+      <arg line="-n &quot;Version ${Build_Number}&quot;"/>
+    </exec>
+    
+    <echo message="Uploading artifacts as part of the release" />
+    
+    <exec program="${Release_exe}" failonerror="true" >
+      <arg line="upload"/>
+      <arg line="-t v${Build_Number}"/>
+      <arg line="-f .\Release_Package\ChefService.exe "/>
+      <arg line="-n ChefService.exe"/>
+    </exec>
+    <exec program="${Release_exe}" failonerror="true" >
+      <arg line="upload"/>
+      <arg line="-t v${Build_Number}"/>
+      <arg line="-f .\Release_Package\ChefService.exe.config "/>
+      <arg line="-n ChefService.exe.config"/>
+    </exec>
+    <exec program="${Release_exe}" failonerror="true" >
+      <arg line="upload"/>
+      <arg line="-t v${Build_Number}"/>
+      <arg line="-f .\Release_Package\EIS-Chef.exe "/>
+      <arg line="-n EIS-Chef.exe"/>
+    </exec>
+    <exec program="${Release_exe}" failonerror="true" >
+      <arg line="upload"/>
+      <arg line="-t v${Build_Number}"/>
+      <arg line="-f .\Release_Package\EIS-Chef.exe.config"/>
+      <arg line="-n EIS-Chef.exe.config"/>
+    </exec>
+    
+  </target>
   
   <!--Internal Calls-->
   <!--Sets the version of the assembly-->
@@ -124,6 +167,6 @@
         <include name="EIS-Chef.exe.config"/>
       </fileset>
     </copy>
-
+    
   </target>
 </project>

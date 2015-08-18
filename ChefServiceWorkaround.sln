@@ -5,6 +5,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChefService", "ChefService\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EIS-Chef", "EISCHEF\EIS-Chef.csproj", "{EE27080F-9B92-49A8-BC1B-FE9E507FC235}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5602D62E-9827-4CEC-9ABD-718C138E3495}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D534C6D0-7559-4BBE-A01B-D5DB14D25AD4}"
+	ProjectSection(SolutionItems) = preProject
+		Nant.build = Nant.build
+		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
+		SharedAssemblyVersion.cs = SharedAssemblyVersion.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{6B1CA9FA-7E08-4618-8812-499DDF093EAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +43,12 @@ Global
 		{EE27080F-9B92-49A8-BC1B-FE9E507FC235}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE27080F-9B92-49A8-BC1B-FE9E507FC235}.Release|x86.ActiveCfg = Release|x86
 		{EE27080F-9B92-49A8-BC1B-FE9E507FC235}.Release|x86.Build.0 = Release|x86
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B1CA9FA-7E08-4618-8812-499DDF093EAC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
